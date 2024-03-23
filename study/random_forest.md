@@ -18,7 +18,7 @@ GBM(Gradient Boosting Machine)
   
 3. GBM(Gradient Boost Machine) : 에이다부스트와 유사하나, 가중치 업데이트를 경사하강법을 이용함. 오류 값은 실제값 - 예측값이고 이 오류값을 최소화하는 방향성을 가지고 반복적으로 가중치를 업데이트하는 것
  
- ```
+ ```python
  from sklearn.ensemble import GradientBoostingClassifier
  import time
  import warnings
