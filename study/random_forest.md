@@ -14,7 +14,8 @@ GBM(Gradient Boosting Machine)
 ==============================
 1. 부스팅 알고리즘 : 여러 개의 약한 학습기를 **순차적으로** 학습, 예측하면서 잘못 예측한 데이터에 가중치 부여를 통해 오류를 개선하면서 학습하는 방식
 2. 에이다부스트(AdaBoost)
-<img width="694" alt="adaboost" src="https://github.com/seungye-kwak/til_log/assets/112370282/bca3ca11-ad54-423b-b49e-c1fede3f6f69">
+  <img width="694" alt="adaboost" src="https://github.com/seungye-kwak/til_log/assets/112370282/bca3ca11-ad54-423b-b49e-c1fede3f6f69">
+  
 3. GBM(Gradient Boost Machine) : 에이다부스트와 유사하나, 가중치 업데이트를 경사하강법을 이용함. 오류 값은 실제값 - 예측값이고 이 오류값을 최소화하는 방향성을 가지고 반복적으로 가중치를 업데이트하는 것
  
  ```
