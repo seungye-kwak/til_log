@@ -25,10 +25,10 @@
 * L2 규제 : 기존 Cost Function에 가중치 제곱의 합을 더하는 형태로, weight 크기에 따라 weight 값이 큰 값을 더 빠르게 감소시키는 weight decay 기법. weight 크기에 따라 가중치 패널티 정도가 달라지기 때문에 가중치가 전반적으로 작아져서 학습 효과가 L1 대비 더 좋게 나옴. 람다 값에 따라 패널티의 정도를 조절할 수 있음  
   ![image](https://github.com/seungye-kwak/til_log/assets/112370282/0d1cb7a5-8a01-45b3-9d8e-c04cb77e9933)
 
-* L1과 L2 규제에 대한 Loss Function의 최적해 위치. 아래 Loss Function의 Space에서 L1, L2의 규제 영역을 두어 실제 최적값에 대한 bias에 손해를 보더라도 variance를 낮춰 Overfitting 발생을 낮추는 것. L1, L2 Loss에서 람다 값이 커질수록 아래의 규제 영역 크기가 작아지게 되어 bias는 더 커지고 variance는 줄어들게 (underfitting 가능성이 커짐)되며 L1, L2 규제를 추가한 Loss Function의 최적값은 규제 영역 내에서 Global Optimum과 제일 가까운 지점이라 볼 수 있음. 아래 그림에서 L1의 경우 세타1의 값이 0인 것을 볼 수 있는데, 이를 통해 특정 변수(Feature)를 삭제할 수 있다는 것을 알 수 있음
+* L1과 L2 규제에 대한 Loss Function의 최적해 위치. 아래 Loss Function의 Space에서 L1, L2의 규제 영역을 두어 실제 최적값에 대한 bias에 손해를 보더라도 variance를 낮춰 Overfitting 발생을 낮추는 것. L1, L2 Loss에서 람다 값이 커질수록 아래의 규제 영역 크기가 작아지게 되어 bias는 더 커지고 variance는 줄어들게 (underfitting 가능성이 커짐)되며 L1, L2 규제를 추가한 Loss Function의 최적값은 규제 영역 내에서 Global Optimum과 제일 가까운 지점이라 볼 수 있음. 아래 그림에서 L1의 경우 세타1의 값이 0인 것을 볼 수 있는데, 이를 통해 특정 변수(Feature)를 삭제할 수 있다는 것을 알 수 있음  
   ![image](https://github.com/seungye-kwak/til_log/assets/112370282/3a2755d9-1d5f-4fe1-91f3-75ecfbbf83b6)
 
-* L1 - L2 비교 정리
+* L1 - L2 비교 정리  
   ![image](https://github.com/seungye-kwak/til_log/assets/112370282/dc367100-cbd2-4926-bc58-b8a50b752ef3)
 
 
