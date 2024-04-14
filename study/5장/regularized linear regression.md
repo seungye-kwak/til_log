@@ -29,9 +29,8 @@
 ![image](https://github.com/seungye-kwak/til_log/assets/112370282/37c07c94-3c77-44ae-9af2-3e47dda1531b)
 
 
-### 3. 릿지 회귀 (Ridge Regression)
+### 3. 릿지 회귀 (Ridge Regression) = L2
 ![image](https://github.com/seungye-kwak/til_log/assets/112370282/a8d2fd8d-627b-49e8-a74a-9248bae3a020)  
-* 
 * L2 규제 방식을 사용한 회귀가 릿지 회귀 (Ridge)
 ```python
 from sklearn.linear_model import Ridge
@@ -57,4 +56,74 @@ for alpha in slphas :
   neg_mse_scores = cross_val_score(redge, X_data, y_target, scoring="neg_mean_sqared_error", cv=5)
   avg_rmse = np.mean(np.sqrt(-1*neg_mese_scores))
   print('alpha {0} 일 때 5 folds의 평균 RMSE : {1:.3f} '.format(alpha, avg_rmse))
+
+# 각 alpha에 따른 회귀 계수 값을 시각화하기 위해 5개의 열로 된 맷플롯립 축 생성  
+fig , axs = plt.subplots(figsize=(18,6) , nrows=1 , ncols=5)
+# 각 alpha에 따른 회귀 계수 값을 데이터로 저장하기 위한 DataFrame 생성  
+coeff_df = pd.DataFrame()
+
+# alphas 리스트 값을 차례로 입력해 회귀 계수 값 시각화 및 데이터 저장. pos는 axis의 위치 지정
+for pos , alpha in enumerate(alphas) :
+    ridge = Ridge(alpha = alpha)
+    ridge.fit(X_data , y_target)
+    # alpha에 따른 피처별 회귀 계수를 Series로 변환하고 이를 DataFrame의 컬럼으로 추가.  
+    coeff = pd.Series(data=ridge.coef_ , index=X_data.columns )
+    colname='alpha:'+str(alpha)
+    coeff_df[colname] = coeff
+    # 막대 그래프로 각 alpha 값에서의 회귀 계수를 시각화. 회귀 계수값이 높은 순으로 표현
+    coeff = coeff.sort_values(ascending=False)
+    axs[pos].set_title(colname)
+    axs[pos].set_xlim(-3,6)
+    sns.barplot(x=coeff.values , y=coeff.index, ax=axs[pos])
+
+# for 문 바깥에서 맷플롯립의 show 호출 및 alpha에 따른 피처별 회귀 계수를 DataFrame으로 표시
+plt.show()
+
+ridge_alphas = [0 , 0.1 , 1 , 10 , 100]
+sort_column = 'alpha:'+str(ridge_alphas[0])
+coeff_df.sort_values(by=sort_column, ascending=False)
 ```
+
+### 4. 라쏘 회귀 (Lasso Regression) = L1
+![image](https://github.com/seungye-kwak/til_log/assets/112370282/fca8f5f6-e7d9-4eaa-92cd-10e8ba586b8e)
+* L1 규제를 적용해 불필요한 회귀 계수를 급격하게 감소시켜 0으로 만들고 제거해 Feature Selection의 특성을 가짐
+  
+```python
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.model_selection import cross_val_score
+
+# alpha값에 따른 회귀 모델의 폴드 평균 RMSE를 출력하고 회귀 계수값들을 DataFrame으로 반환 
+def get_linear_reg_eval(model_name, params=None, X_data_n=None, y_target_n=None, 
+                        verbose=True, return_coeff=True):
+    coeff_df = pd.DataFrame()
+    if verbose : print('####### ', model_name , '#######')
+    for param in params:
+        if model_name =='Ridge': model = Ridge(alpha=param)
+        elif model_name =='Lasso': model = Lasso(alpha=param)
+        elif model_name =='ElasticNet': model = ElasticNet(alpha=param, l1_ratio=0.7)
+        neg_mse_scores = cross_val_score(model, X_data_n, 
+                                             y_target_n, scoring="neg_mean_squared_error", cv = 5)
+        avg_rmse = np.mean(np.sqrt(-1 * neg_mse_scores))
+        print('alpha {0}일 때 5 폴드 세트의 평균 RMSE: {1:.3f} '.format(param, avg_rmse))
+        # cross_val_score는 evaluation metric만 반환하므로 모델을 다시 학습하여 회귀 계수 추출
+        
+        model.fit(X_data_n , y_target_n)
+        if return_coeff:
+            # alpha에 따른 피처별 회귀 계수를 Series로 변환하고 이를 DataFrame의 컬럼으로 추가. 
+            coeff = pd.Series(data=model.coef_ , index=X_data_n.columns )
+            colname='alpha:'+str(param)
+            coeff_df[colname] = coeff
+    
+    return coeff_df
+
+lasso_alphas = [ 0.07, 0.1, 0.5, 1, 3]
+coeff_lasso_df =get_linear_reg_eval('Lasso', params=lasso_alphas, X_data_n=X_data, y_target_n=y_target)
+
+sort_column = 'alpha:'+str(lasso_alphas[0])
+coeff_lasso_df.sort_values(by=sort_column, ascending=False)
+```
+
+### 5. 엘라스틱넷 회귀 (Elastic Net Regression)
+![image](https://github.com/seungye-kwak/til_log/assets/112370282/87db4a1b-02f7-4358-99fe-9b80d4f92f6f)
+* L2 와 L1 규제를 결합한 회귀. L1 과 마찬가지로 서로 상관관계가 높은 피처들의 경우 이들 중 중요한 Feature만 선택하고 다른 Feature의 회귀 계수를 모두 0으로 만드는 성향이 강함
+* 이 때문에 L1에서는 alpha 값에 따라 회귀 계수가 급격히 변동하는데, Elastic Net은 이것을 완화하기 위해 Lasso에 L2 규제를 추가한 것
