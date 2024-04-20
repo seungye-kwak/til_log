@@ -3,8 +3,8 @@
 
 ### 1. K-means Clustering
 - 군집화에서 가장 일반적으로 사용되는 알고리즘. 군집 중심 점(centroid)이라는 특정한 임의의 지점을 선택해 해당 중심에 가장 가까운 포인트들을 선택하는 군집화 기법
-- 군집 중심점은 선택된 포인트의 평균 지점으로 이동하고 이동된 중심점에서 다시 가까운 포인트를 선택, 다시 중심점을 평균 지점으로 이동하는 프로세스를 반복적으로 수행함. 모든 데이터 포인트에서 더이상 중심점의 이동이 없을 경우에 반복을 멈추고 해당 중심점에 속하는 데이터 포인트들을 군집화하는 기법
-  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/ff2ebf14-bcbf-455f-96f2-0aa1eb1f4f4d)
+- 군집 중심점은 선택된 포인트의 평균 지점으로 이동하고 이동된 중심점에서 다시 가까운 포인트를 선택, 다시 중심점을 평균 지점으로 이동하는 프로세스를 반복적으로 수행함. 모든 데이터 포인트에서 더이상 중심점의 이동이 없을 경우에 반복을 멈추고 해당 중심점에 속하는 데이터 포인트들을 군집화하는 기법  
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/ff2ebf14-bcbf-455f-96f2-0aa1eb1f4f4d)  
   1) 군집화의 기준이 되는 중심을 구성하려는 군집화 개수만큼 임의의 위치에 가져다 놓음 (임의로 두면 이동 수행이 너무 많아져 초기화 알고리즘으로 적합한 위치에 중심점을 가져놔야 함)
   2) 각 데이터는 가장 가까운 곳에 위치한 중심점에 소속됨.
   3) 이렇게 소속이 결정되면 군집 중심점을 소속된 데이터의 평균 중심으로 이동
@@ -17,7 +17,7 @@
 ### 1-2. 사이킷런 KMeans 클래스 소개
 ```python
 class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001,
-precompute_distances='quto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
+                             precompute_distances='quto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
 ```
 - Kmeans 초기화 파라미터 중 가장 중요한 파라미터는 n_clusters이며, 이는 군집화할 개수, 즉 군집 중심점의 개수를 의미함
 - init은 초기에 군집 중심점의 좌표를 설정할 방식을 말하며 보통은 임의로 중심을 설정하지 않고 일반적으로 k-means++ 방식으로 최초 설정함
