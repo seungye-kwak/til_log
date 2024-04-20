@@ -16,7 +16,8 @@
 
 ### 1-2. 사이킷런 KMeans 클래스 소개
 ```python
-class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='quto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
+class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001,
+precompute_distances='quto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
 ```
 - Kmeans 초기화 파라미터 중 가장 중요한 파라미터는 n_clusters이며, 이는 군집화할 개수, 즉 군집 중심점의 개수를 의미함
 - init은 초기에 군집 중심점의 좌표를 설정할 방식을 말하며 보통은 임의로 중심을 설정하지 않고 일반적으로 k-means++ 방식으로 최초 설정함
