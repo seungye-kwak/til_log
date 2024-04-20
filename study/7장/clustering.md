@@ -14,6 +14,7 @@
 - 장점 : 일반적으로 군집화에서 가장 많이 활용되는 알고리즘으로, 쉽고 간결함
 - 단점 : 거리 기반 알고리즘으로 속성의 개수가 매우 많을 경우 군집화 정확도가 떨어짐(이를 위해 PCA로 차원 감소를 적용해야 할 수 있음). 반복을 수행하는데 횟수가 많으면 수행 시간이 매우 느려지고, 몇 개의 군집(cluster)을 선택해야 할지 기준이 없음
 
+
 ### 1-2. 사이킷런 KMeans 클래스 소개
 ```python
 class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001,
@@ -70,6 +71,7 @@ class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter
 
   plt.show()
   ```
+
 
 ### 2. 군집 평가(Cluster Evaluation)
 
