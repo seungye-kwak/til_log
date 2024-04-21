@@ -73,5 +73,124 @@ class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter
   ```
 
 
-### 2. 군집 평가(Cluster Evaluation)
+### 2-1. 군집 평가(Cluster Evaluation)
+- 대부분의 군집화 데이터는 비교할 만한 타깃 레이블을 갖고 있지 않음
+- 분류와 유사해 보일 수 있으나 성격이 많이 다름. 데이터 내에 숨어 있는 별도의 그룹을 찾아서 의미를 부여하거나 동일한 분류 값에 속하더라도 그 안에서 더 세분화된 군집화를 추구하거나, 서로 다른 분류 값의 데이터도 더 넓은 군집화 레벨화 등의 영역을 가지고 있음
+- 군집화가 효율적으로 잘 됐는지 평가할 수 있는 지표로 __실루엣 분석__ 을 이용함
 
+### 2-2. 실루엣 분석(silhouette analysis)
+- 각 군집 간의 거리가 얼마나 효율적으로 분리돼 있는지를 나타냄
+- 효율적 분리 : 다른 군집과의 거리는 떨어져 있고 동일 군집끼리의 데이터는 서로 가깝게 잘 뭉쳐있다는 의미. 군집화가 잘 될수록 개별 군집은 비슷한 정도의 여유공간을 가지고 떨어져 있을 것
+- 실루엣 분석은 실루엣 계수(silhouette coefficient, 개별 데이터가 가지는 군집화 지표)를 기반으로 함. 개별 데이터가 가지는 실루엣 계수는 해당 데이터가 같은 군집 내의 데이터와 얼마나 가깝게 군집화돼 있고, 다른 군집에 있는 데이터와는 얼마나 분리돼 있는지를 나타내는 지표
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/cee96faf-e650-4f80-813d-38c70c355035)
+  + (max(a(i), b(i)) 로 나눠주는 것은 정규화를 하기 위함
+  + i는 데이터 포인트를 의미함
+  + 1에 가까워질수록 근처의 군집과 더 멀리 떨어져 있다는 것, 0에 가까울수록 근처의 군집과 가까워진다는 것. - 값은 아예 다른 군집에 데이터 포인트가 할당됐음을 의미함
+- 좋은 군집화의 조건
+  1) 전체 실루엣 계수의 평균값(사이킷런의 silhouette_score() 값)은 0~1 사이의 값을 가지며 1에 가까울수록 좋음
+  2) 하지만 전체 실루엣 계수의 평균값과 더불어 개별 군집의 평균값의 편차가 크지 않아야 함. 즉, 개별 군집의 실루엣 계수 평균값이 전체 실루엣 계수의 평균값에서 크게 벗어나지 않는 것이 중요함. 만약 전체 실루엣 계수의 평균값은 높지만, 특정 실루엣 계수 평균값만 유난히 높고 다른 군집들의 실루엣 계수 평균값이 낮으면 좋은 군집화가 아님
+
+```python
+from sklearn.preprocessing import scale
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+# 실루엣 분석 평가 지표 값을 구하기 위한 API 추가
+from sklearn.metrics import silhouette_samples, silhouette_score
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+%matplotlib inline
+
+iris = load_iris()
+feature_names = ['sepal_length','sepal_width','petal_length','petal_width']
+irisDF = pd.DataFrame(data=iris.data, columns=feature_names)
+
+# 군집화 수행
+kmeans = KMeans(n_clusters=3, init='k-means++', max_iter=300,random_state=0)
+kmeans.fit(irisDF)
+
+# 개별 데이터에 대한 군집 결과를 cluster 컬럼으로 DataFrame에 저장
+irisDF['cluster'] = kmeans.labels_
+
+irisDF.head(10)
+
+# iris 의 모든 개별 데이터에 실루엣 계수값을 구함
+score_samples = silhouette_samples(iris.data, irisDF['cluster'])
+print('silhouette_samples( ) return 값의 shape' , score_samples.shape)
+
+# irisDF에 실루엣 계수 컬럼 추가
+irisDF['silhouette_coeff'] = score_samples
+
+# 보통 0.5가 넘으면 꽤 좋은 수치로 봄
+print(np.mean(score_samples))
+print(silhouette_score(iris.data, irisDF['cluster']))
+```
+
+### 2-3. 시각화를 통한 군집 개수 최적화
+- 전체 데이터의 평균 실루엣 계수 값이 높다고 해서 반드시 최적의 군집 개수로 군집화가 잘 됐다고 볼 수 없음. 특정 군집 내의 실루엣 계수 값만 너무 높고, 다른 군집은 내부 데이터끼리의 거리가 너무 떨어져 있어 실루엣 계수 값이 낮아져도 평균적으로 높은 값을 가질 수 있음
+- 개별 군집별로 적당히 분리된 거리를 유지하면서도 군집 내의 데이터가 서로 뭉쳐 있는 경우에 K-평균의 적절한 군집 개수가 설정됐다고 판단할 수 있음
+
+```python
+def visualize_silhouette(cluster_lists, X_features): 
+    
+    from sklearn.datasets import make_blobs
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import silhouette_samples, silhouette_score
+
+    import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    import math
+    
+    # 입력값으로 클러스터링 갯수들을 리스트로 받아서, 각 갯수별로 클러스터링을 적용하고 실루엣 개수를 구함
+    n_cols = len(cluster_lists)
+    
+    # plt.subplots()으로 리스트에 기재된 클러스터링 수만큼의 sub figures를 가지는 axs 생성 
+    fig, axs = plt.subplots(figsize=(4*n_cols, 4), nrows=1, ncols=n_cols)
+    
+    # 리스트에 기재된 클러스터링 갯수들을 차례로 iteration 수행하면서 실루엣 개수 시각화
+    for ind, n_cluster in enumerate(cluster_lists):
+        
+        # KMeans 클러스터링 수행하고, 실루엣 스코어와 개별 데이터의 실루엣 값 계산. 
+        clusterer = KMeans(n_clusters = n_cluster, max_iter=500, random_state=0)
+        cluster_labels = clusterer.fit_predict(X_features)
+        
+        sil_avg = silhouette_score(X_features, cluster_labels)
+        sil_values = silhouette_samples(X_features, cluster_labels)
+        
+        y_lower = 10
+        axs[ind].set_title('Number of Cluster : '+ str(n_cluster)+'\n' \
+                          'Silhouette Score :' + str(round(sil_avg,3)) )
+        axs[ind].set_xlabel("The silhouette coefficient values")
+        axs[ind].set_ylabel("Cluster label")
+        axs[ind].set_xlim([-0.1, 1])
+        axs[ind].set_ylim([0, len(X_features) + (n_cluster + 1) * 10])
+        axs[ind].set_yticks([])  # Clear the yaxis labels / ticks
+        axs[ind].set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1])
+        
+        # 클러스터링 갯수별로 fill_betweenx( )형태의 막대 그래프 표현. 
+        for i in range(n_cluster):
+            ith_cluster_sil_values = sil_values[cluster_labels==i]
+            ith_cluster_sil_values.sort()
+            
+            size_cluster_i = ith_cluster_sil_values.shape[0]
+            y_upper = y_lower + size_cluster_i
+            
+            color = cm.nipy_spectral(float(i) / n_cluster)
+            axs[ind].fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_sil_values, \
+                                facecolor=color, edgecolor=color, alpha=0.7)
+            axs[ind].text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+            y_lower = y_upper + 10
+            
+        axs[ind].axvline(x=sil_avg, color="red", linestyle="--")
+
+# make_blobs 을 통해 clustering 을 위한 4개의 클러스터 중심의 500개 2차원 데이터 셋 생성  
+from sklearn.datasets import make_blobs
+X, y = make_blobs(n_samples=500, n_features=2, centers=4, cluster_std=1, \
+                  center_box=(-10.0, 10.0), shuffle=True, random_state=1)  
+
+# cluster 개수를 2개, 3개, 4개, 5개 일때의 클러스터별 실루엣 계수 평균값을 시각화 
+visualize_silhouette([ 2, 3, 4, 5], X)
+```
+
+![image](https://github.com/seungye-kwak/til_log/assets/112370282/2d23e667-3c9a-4226-8038-5e8cee5a3935)  
++ 전체 실루엣 계수만 보면 n=2 클러스터링이 좋아보이지만, 보통 n=4 클러스터링처럼 군집 간 편차가 적은 것이 좋다.
