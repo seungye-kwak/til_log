@@ -22,6 +22,6 @@ GMM(Gaussian Mixture Model)
   - 데이터가 원형의 범위로 퍼져 있지 않은 경우에는 K-means는 군집화를 잘 수행하지 못함. 이 경우 GMM을 사용하면 데이터가 분포된 방향에 따라 정확하게 군집화할 수 있음.
   - GMM은 K-Means와 다르게 군집의 중심 좌표를 구할 수 없기 때문에 군집 중심 표현이 시각화되지는 않을 수 있음
   - 즉, GMM은 K-Means보다 유연하게 다양한 데이터 세트에 잘 적용될 수 있다는 장점이 있지만 군집화를 위해 수행 시간이 오래 걸린다는 단점이 있음
-    ![image](https://github.com/seungye-kwak/til_log/assets/112370282/1595c654-634c-427b-9e37-bf18fe87f270)
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/1595c654-634c-427b-9e37-bf18fe87f270)
 
   
