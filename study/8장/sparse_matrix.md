@@ -33,6 +33,49 @@
   sparse_coo.toarray()
   ```
 
-### 1.2 CSR 형식
+### 1.2 CSR 형식 (Compressed Sparse Row)
+- COO 형식이 행과 열의 위치를 나타내기 위해서 반복적인 위치 데이터를 사용해야 하는 문제점을 해결한 방식
+- COO 변환 형식의 문제점  
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/ec395032-ed98-46f8-97a6-db7f312b1742)  
+  + 행 위치 배열 [0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 4, 4, 5]를 주의깊게 보면 순차적인 같은 값이 반복적으로 나타남. (0이 2번, 1이 5번...)
+- 행 위치 배열이 0부터 순차적으로 증가하는 값으로 이뤄졌다는 특성을 고려하면 행 위치 배열의 고유한 값의 시작 위치만 표기하는 방법으로 이러한 반복을 제거할 수 있음 (위치의 위치를 표기하는 것)
+- 행 위치 배열의 첫 번째(인덱스 0)는 0, 두 번째(인덱스 1)는 0, 세 번째(인덱스 2)는 1이라면 행 위치 배열의 고유값 시작 위치는 첫 번째와 세 번째이고 인덱스 기준으로 [0, 2] 임
+- CSR은 Compressed Sparse Row의 약자이며, 이처럼 행 ㅇ위치 배열 내에 있는 고유한 값의 시작 위치만 다시 별도의 위치 배열로 가지는 변환 방식을 의미함
+- 다음 그림은 위 그림의 행 위치 배열을 CSR로 변환하는 방식을 나타냄. 행 위치 배열 [0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 4, 4, 5]을 CSR 로 변환하면 [0, 2, 7, 9, 10, 12]가 됨 (고유값의 수와 같음)  
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/4dd698c7-6553-4af0-ba53-86cb62cdb720)
+  + 이렇게 고유 값의 시작 위치만 알고 있으면 얼마든지 행 위치 배열을 다시 만들 수 있기 때문에 COO 방식보다 메모리가 적게 들고 빠른 연산이 가능함
+```python
+from scipy import sparse
+
+dense2 = np.array([[0, 0, 1, 0, 0, 5], 
+                   [1, 4, 0, 3, 2, 5], 
+                   [0, 6, 0, 3, 0, 0], 
+                   [2, 0, 0, 0, 0, 0], 
+                   [0, 0, 0, 7, 0, 8],
+                   [1, 0, 0, 0, 0, 0]])
+
+# 0 0| 아닌 데이터 추출
+data2 = np.array([1, 5, 1, 4, 3, 2, 5, 6, 3, 2, 7, 8, 1])
+
+# 행 위치와 열 위치를 각각 array로 생성
+row_pos = np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 4, 4, 5]) 
+col_pos = np.array([2, 5, 0, 1, 3, 4, 5, 1, 3, 0, 3, 5, 0])
+
+# COO 형식으로 변환 (행 위치 배열)
+sparse_coo = sparse.coo_matrix((data2, (row_pos, col_pos)))
+
+# 행 위치 배열의 고유한 값의 시작 위치 인덱스를 배열로 생성
+row_pos_ind = np.array([0, 2, 7, 9, 10, 12, 13])
+
+# CSR 형식으로 변환
+sparse_csr = sparse.csr_matrix((data2, col_pos, row_pos_ind))
+print('COO 변환된 데이터가 제대로 되었는지 다시 Dense로 출력 확인') 
+print(sparse_coo.toarray())
+print('CSR 변환된 데이터가 제대로 되었는지 다시 Dense로 출력 확인') 
+print(sparse_csr.toarray())
+```
+- CSR 장단점 정리 (출처 : https://rfriend.tistory.com/551)  
+  ![image](https://github.com/seungye-kwak/til_log/assets/112370282/876cbd7b-3b3e-48b8-a444-6cf1df5f21b4)  
+
 
 
